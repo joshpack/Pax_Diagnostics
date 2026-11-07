@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Headless;
+using Avalonia.LogicalTree;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using PaxDiagnostics.Diagnostics;
@@ -13,7 +15,8 @@ namespace PaxDiagnostics;
 /// <summary>
 /// --self-test DIR [--sample]: reads the system information, checks the CBS log filter on a made-up log written into
 /// DIR (the real CBS.log is only read), checks output decoding and verdicts with recorded SFC/DISM output, checks
-/// elevation detection, and renders every tab to a PNG off-screen. SFC and DISM are never run. With --sample the window
+/// elevation detection, renders every tab (with the PAX title bar) to a PNG on the headless platform, and checks
+/// remembered window placement and the single-instance hand-off. Nothing is shown on screen. SFC and DISM are never run. With --sample the window
 /// shows invented data instead of this PC's, for screenshots. Exit code 0 when every check passed.
 /// </summary>
 internal static class SelfTest
@@ -262,10 +265,10 @@ internal static class SelfTest
 
     private static async Task Render(List<InfoSection> sections, CbsResult cbs)
     {
-        R.AppendLine("== Window (rendered off-screen) ==");
+        R.AppendLine("== Window (headless renderer: nothing is shown on screen) ==");
         var window = new MainWindow(null, autoLoad: false, elevated: Sample ? false : null)
         {
-            // Far off every screen, never activated, not on the taskbar: nothing appears for the user.
+            // Headless already keeps it off the screen; these keep it that way if run on a real platform.
             WindowStartupLocation = WindowStartupLocation.Manual,
             Position = new PixelPoint(-30000, -30000),
             ShowActivated = false,
@@ -307,6 +310,7 @@ internal static class SelfTest
             window.UpdateLayout();
             await Task.Delay(150);
             await Dispatcher.UIThread.InvokeAsync(window.UpdateLayout, DispatcherPriority.Background);
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick();
             using var bmp = new RenderTargetBitmap(new PixelSize(1000, 760));
             bmp.Render(window);
             var file = Path.Combine(Dir!, names[tab] + ".png");
@@ -314,6 +318,83 @@ internal static class SelfTest
             Check($"Rendered {names[tab]} tab", new FileInfo(file).Length > 10_000, file);
         }
 
+        Check("Title bar: icon, name, minimize / maximize / close", HasTitleBar(window, window.Title!, captionButtons: 3), window.Title);
         window.Close();
+        R.AppendLine();
+        await Placement();
+        SingleInstanceCheck();
+    }
+
+    private static bool HasTitleBar(Window w, string title, int captionButtons)
+    {
+        var all = w.GetLogicalDescendants().ToList();
+        return w.WindowDecorations == WindowDecorations.BorderOnly
+               && all.OfType<TextBlock>().Any(t => t.Text == title)
+               && all.OfType<Image>().Any(i => i.Width == 18)
+               && all.OfType<Button>().Count(b => b.Classes.Contains("pax-caption")) == captionButtons
+               && all.OfType<Button>().Any(b => b.Classes.Contains("pax-close"));
+    }
+
+    private static MainWindow OffScreen() => new(null, autoLoad: false, elevated: false)
+    {
+        WindowStartupLocation = WindowStartupLocation.Manual,
+        Position = new PixelPoint(-30000, -30000),
+        ShowActivated = false,
+        ShowInTaskbar = false,
+    };
+
+    // ---------- Remembered placement ----------
+
+    /// <summary>PaxChrome.RememberPlacement: a moved and resized window is saved and restored; a spot off every screen is ignored.</summary>
+    private static async Task Placement()
+    {
+        R.AppendLine("== Window placement (windows.json in the test data folder) ==");
+        const string key = "selftest";
+        var file = Path.Combine(Program.DataFolder, "windows.json");
+        if (File.Exists(file)) File.Delete(file);
+
+        var a = OffScreen();
+        PaxStandard.PaxChrome.RememberPlacement(a, key);
+        a.Show();
+        await Task.Delay(50);
+        a.Width = 900;
+        a.Height = 620;
+        a.Position = new PixelPoint(-29000, -29000);
+        a.UpdateLayout();
+        await Task.Delay(50);
+        a.Close();
+        var json = File.Exists(file) ? await File.ReadAllTextAsync(file) : "";
+        Check("Placement saved to windows.json", json.Contains("\"selftest\"") && json.Contains("\"Width\":900") && json.Contains("\"Height\":620") && json.Contains("\"X\":-29000"), json);
+
+        // Size comes back; the position is off every screen, so it is ignored and the window keeps its own spot.
+        var b = OffScreen();
+        PaxStandard.PaxChrome.RememberPlacement(b, key);
+        Check("Placement restored (size), off-screen spot ignored", b.Width == 900 && b.Height == 620 && b.Position == new PixelPoint(-30000, -30000),
+            $"{b.Width}x{b.Height} at {b.Position}");
+
+        // An on-screen spot and the maximized flag come back too (this window is never shown).
+        await File.WriteAllTextAsync(file, """{"selftest":{"X":120,"Y":90,"Width":980,"Height":700,"Maximized":true}}""");
+        var c = OffScreen();
+        PaxStandard.PaxChrome.RememberPlacement(c, key);
+        Check("Placement restored (position, maximized)", c.Position == new PixelPoint(120, 90) && c.WindowState == WindowState.Maximized && c.Width == 980,
+            $"{c.Width}x{c.Height} at {c.Position}, {c.WindowState}");
+        R.AppendLine();
+    }
+
+    /// <summary>A second start hands over to the running copy through the named pipe.</summary>
+    private static void SingleInstanceCheck()
+    {
+        R.AppendLine("== Single instance ==");
+        var name = "PaxDiagnostics-selftest-" + Guid.NewGuid().ToString("N")[..8];
+        string[]? got = null;
+        using var done = new ManualResetEventSlim();
+        using (SingleInstance.Listen(name, args => { got = args; done.Set(); }))
+        {
+            var sent = SingleInstance.Send(name, ["--from-second-start"]);
+            done.Wait(3000);
+            Check("Second start reaches the running copy", sent && got is ["--from-second-start"], got is null ? "nothing received" : string.Join("|", got));
+        }
+
+        R.AppendLine();
     }
 }

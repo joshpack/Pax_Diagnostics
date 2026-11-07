@@ -1,11 +1,21 @@
 using Avalonia;
+using Avalonia.Headless;
+using Avalonia.Threading;
 
 namespace PaxDiagnostics;
 
 internal static class Program
 {
+    public const string AppId = "PaxDiagnostics";
+
     /// <summary>"--tool sfc" and friends: set when the app restarted itself as administrator to run that tool.</summary>
     public static string? StartTool { get; private set; }
+
+    /// <summary>%APPDATA%\PaxDiagnostics (window placement), or the folder in PAXDG_DATA (tests keep the real one untouched).</summary>
+    public static string DataFolder =>
+        Environment.GetEnvironmentVariable("PAXDG_DATA") is { Length: > 0 } custom
+            ? custom
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PaxDiagnostics");
 
     [STAThread]
     public static int Main(string[] args)
@@ -25,13 +35,35 @@ internal static class Program
             SelfTest.Dir = Path.GetFullPath(args[test + 1]);
             SelfTest.Sample = args.Any(a => a.Equals("--sample", StringComparison.OrdinalIgnoreCase));
             Directory.CreateDirectory(SelfTest.Dir);
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            // Keep the real window placement out of it unless the caller chose a folder.
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PAXDG_DATA")))
+                Environment.SetEnvironmentVariable("PAXDG_DATA", Path.Combine(SelfTest.Dir, "data"));
+            PaxStandard.PaxChrome.Configure(AppId, DataFolder);
+
+            // Headless platform: the windows are real Avalonia windows, but no OS window exists, so nothing can appear on screen.
+            AppBuilder.Configure<App>()
+                .UseSkia()
+                .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
+                .SetupWithoutStarting();
+            using var done = new CancellationTokenSource();
+            Dispatcher.UIThread.Post(async () =>
+            {
+                await SelfTest.RunAsync();
+                done.Cancel();
+            });
+            Dispatcher.UIThread.MainLoop(done.Token);
             return SelfTest.ExitCode;
         }
 
         var tool = Array.FindIndex(args, a => a.Equals("--tool", StringComparison.OrdinalIgnoreCase));
-        if (tool >= 0 && tool + 1 < args.Length) StartTool = args[tool + 1];
+        if (tool >= 0 && tool + 1 < args.Length)
+            StartTool = args[tool + 1];
+        // One copy at a time: starting it again brings the open window to the front. The elevated copy started for a
+        // tool (while this one closes) is left out, so it never hands itself back to the copy that is going away.
+        else if (!SingleInstance.Claim(SingleInstance.Name(AppId), args))
+            return 0;
 
+        PaxStandard.PaxChrome.Configure(AppId, DataFolder);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         return 0;
     }

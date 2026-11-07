@@ -9,24 +9,37 @@ namespace PaxDiagnostics;
 
 public partial class App : Application
 {
-    public override void Initialize() => AvaloniaXamlLoader.Load(this);
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+        Styles.Add(PaxStandard.PaxChrome.Styles());   // caption-button hover colours of the PAX title bar
+    }
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // The self-test runs on the headless platform (see Program), without a desktop lifetime.
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
         {
-            if (SelfTest.Dir is not null)
+            var window = new MainWindow(Program.StartTool);
+            PaxStandard.PaxChrome.RememberPlacement(window, "main");
+            lifetime.MainWindow = window;
+
+            // Started again: bring this window to the front (back to maximized if it was).
+            var restoreTo = window.WindowState;
+            window.PropertyChanged += (_, e) =>
             {
-                lifetime.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-                Dispatcher.UIThread.Post(async () =>
+                if (e.Property == Window.WindowStateProperty && window.WindowState != WindowState.Minimized)
+                    restoreTo = window.WindowState;
+            };
+            if (Program.StartTool is null)
+            {
+                var listener = SingleInstance.Listen(SingleInstance.Name(Program.AppId), _ => Dispatcher.UIThread.Post(() =>
                 {
-                    await SelfTest.RunAsync();
-                    lifetime.Shutdown(SelfTest.ExitCode);
-                });
-            }
-            else
-            {
-                lifetime.MainWindow = new MainWindow(Program.StartTool);
+                    if (window.WindowState == WindowState.Minimized)
+                        window.WindowState = restoreTo;
+                    window.Activate();
+                }));
+                lifetime.Exit += (_, _) => listener.Dispose();
             }
         }
 

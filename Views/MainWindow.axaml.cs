@@ -54,6 +54,10 @@ public partial class MainWindow : Window
         Ctl<ShapePath>("MonitorArt").Data = AppIcon.Monitor;
         Ctl<ShapePath>("PulseArt").Data = AppIcon.Pulse;
         Title = _elevated ? "PAX Diagnostics (Administrator)" : "PAX Diagnostics";
+        // The PAX title bar replaces the system one (detach the XAML body first so it can be re-parented).
+        var body = (Control)Content!;
+        Content = null;
+        Content = PaxStandard.PaxChrome.Wrap(this, body, Title, BrandIcon.Render(36));
 
         var pill = Ctl<Border>("ElevationPill");
         pill.Background = new SolidColorBrush(Color.Parse(_elevated ? "#0C2A1D" : "#0C2230"));
