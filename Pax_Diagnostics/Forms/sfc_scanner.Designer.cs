@@ -28,42 +28,69 @@
         /// </summary>
         private void InitializeComponent()
         {
-            button1 = new Button();
+            runSfcButton = new Button();
             richTextBox1 = new RichTextBox();
+            statusLabel = new Label();
+            selectLogButton = new Button();
             SuspendLayout();
             // 
-            // button1
+            // runSfcButton
             // 
-            button1.Location = new Point(59, 40);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 0;
-            button1.Text = "button1";
-            button1.UseVisualStyleBackColor = true;
+            runSfcButton.Location = new Point(12, 12);
+            runSfcButton.Name = "runSfcButton";
+            runSfcButton.Size = new Size(113, 23);
+            runSfcButton.TabIndex = 0;
+            runSfcButton.Text = "Run local scan";
+            runSfcButton.UseVisualStyleBackColor = true;
+            runSfcButton.Click += RunSfcButton_Click;
             // 
             // richTextBox1
             // 
-            richTextBox1.Location = new Point(12, 69);
+            richTextBox1.Font = new Font("Consolas", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            richTextBox1.Location = new Point(12, 41);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(736, 369);
+            richTextBox1.Size = new Size(776, 397);
             richTextBox1.TabIndex = 1;
             richTextBox1.Text = "";
+            // 
+            // statusLabel
+            // 
+            statusLabel.Location = new Point(329, 9);
+            statusLabel.Name = "statusLabel";
+            statusLabel.Size = new Size(459, 29);
+            statusLabel.TabIndex = 2;
+            statusLabel.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // selectLogButton
+            // 
+            selectLogButton.Location = new Point(147, 12);
+            selectLogButton.Name = "selectLogButton";
+            selectLogButton.Size = new Size(113, 23);
+            selectLogButton.TabIndex = 3;
+            selectLogButton.Text = "Open file";
+            selectLogButton.UseVisualStyleBackColor = true;
+            selectLogButton.Click += selectLogButton_Click_1;
             // 
             // sfc_scanner
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(selectLogButton);
+            Controls.Add(statusLabel);
             Controls.Add(richTextBox1);
-            Controls.Add(button1);
+            Controls.Add(runSfcButton);
             Name = "sfc_scanner";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "sfc_scanner";
             ResumeLayout(false);
         }
 
         #endregion
 
-        private Button button1;
+        private Button runSfcButton;
         private RichTextBox richTextBox1;
+        private Label statusLabel;
+        private Button selectLogButton;
     }
 }
