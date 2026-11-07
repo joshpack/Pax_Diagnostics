@@ -37,7 +37,7 @@
 **By hand:**
 
 1. Install the **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)** (x64) if you don't have it. The plain ".NET Runtime" is enough; the ".NET Desktop Runtime" includes it, so that works too.
-2. Download **`PaxDiagnostics-1.0.0-win-x64.zip`** from **[the latest release](https://github.com/joshpack/Pax_Diagnostics/releases/latest)**.
+2. Download **`PaxDiagnostics-1.0.1-win-x64.zip`** from **[the latest release](https://github.com/joshpack/Pax_Diagnostics/releases/latest)**.
 3. Unzip it somewhere permanent, for example `%USERPROFILE%\Apps\PaxDiagnostics`.
 4. Run `PaxDiagnostics.exe`. It opens without administrator rights.
 
