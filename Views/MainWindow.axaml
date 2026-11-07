@@ -1,0 +1,168 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="PaxDiagnostics.Views.MainWindow"
+        Title="PAX Diagnostics"
+        Width="1000" Height="760" MinWidth="820" MinHeight="560"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid RowDefinitions="Auto,Auto,*" Margin="22,20,22,16">
+
+    <!-- Header -->
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,10">
+      <Border Width="38" Height="38" CornerRadius="10" BoxShadow="0 0 18 0 #6600C8FF, 0 0 30 3 #3319F58C">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+            <GradientStop Color="#00C8FF" Offset="0" />
+            <GradientStop Color="#19F58C" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+        <Viewbox Margin="5">
+          <Grid Width="100" Height="100">
+            <Path x:Name="MonitorArt" Stroke="#04140C" StrokeThickness="8" StrokeLineCap="Round" StrokeJoin="Round" />
+            <Path x:Name="PulseArt" Stroke="#04140C" StrokeThickness="8" StrokeLineCap="Round" StrokeJoin="Round" />
+          </Grid>
+        </Viewbox>
+      </Border>
+      <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" Spacing="0">
+        <TextBlock Text="PAX DIAGNOSTICS" FontSize="18" FontWeight="Bold" LetterSpacing="1.5" Classes="neon" />
+        <TextBlock Text="System info and Windows repair in one place" Classes="muted" FontSize="11" />
+      </StackPanel>
+      <Border x:Name="ElevationPill" Grid.Column="2" CornerRadius="999" Padding="11,5" VerticalAlignment="Center" BorderThickness="1">
+        <StackPanel Orientation="Horizontal" Spacing="7">
+          <Ellipse x:Name="ElevationDot" Width="8" Height="8" VerticalAlignment="Center" Classes="pulse" />
+          <TextBlock x:Name="ElevationText" FontWeight="SemiBold" FontSize="12" />
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- A friendly notice instead of a dialog box -->
+    <Border x:Name="Notice" Grid.Row="1" Classes="notice" IsVisible="False" Margin="0,0,0,10">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock x:Name="NoticeText" TextWrapping="Wrap" Foreground="#F5C97A" VerticalAlignment="Center" />
+        <Button x:Name="NoticeClose" Grid.Column="1" Classes="ghost" Content="Dismiss" MinHeight="28" Padding="10,2" Margin="10,0,0,0" />
+      </Grid>
+    </Border>
+
+    <TabControl x:Name="Tabs" Grid.Row="2" Padding="0,10,0,0">
+
+      <TabItem Header="System">
+        <Grid RowDefinitions="Auto,*">
+          <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,0,12,12">
+            <TextBlock x:Name="SysStatus" Classes="muted" VerticalAlignment="Center" Text="Reading system information…" />
+            <Button x:Name="RefreshButton" Grid.Column="1" Content="Refresh" />
+            <Button x:Name="CopyInfoButton" Grid.Column="2" Classes="primary" Content="Copy all info" />
+          </Grid>
+          <ScrollViewer Grid.Row="1">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,0,12,6">
+              <StackPanel x:Name="SysLeft" Spacing="12" />
+              <StackPanel x:Name="SysRight" Grid.Column="1" Spacing="12" />
+            </Grid>
+          </ScrollViewer>
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Repair">
+        <ScrollViewer>
+          <StackPanel Spacing="12" Margin="0,0,12,6">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+
+              <Border Classes="card">
+                <StackPanel Spacing="10">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="SYSTEM FILE CHECKER" Classes="label" />
+                    <TextBlock Text="SFC /scannow" FontSize="20" FontWeight="Bold" />
+                    <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                               Text="Checks every protected Windows file and replaces damaged ones from the component store. Usually 5 to 15 minutes." />
+                  </StackPanel>
+                  <WrapPanel ItemSpacing="8" LineSpacing="8">
+                    <Button x:Name="SfcButton" Classes="primary" />
+                  </WrapPanel>
+                  <ProgressBar x:Name="SfcProgress" Minimum="0" Maximum="100" IsVisible="False" />
+                  <TextBlock x:Name="SfcStatus" Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Not run yet." />
+                  <Border x:Name="SfcVerdict" Classes="pill" IsVisible="False" HorizontalAlignment="Left">
+                    <TextBlock x:Name="SfcVerdictText" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="10">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="COMPONENT STORE" Classes="label" />
+                    <TextBlock Text="DISM" FontSize="20" FontWeight="Bold" />
+                    <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                               Text="CheckHealth quickly looks for damage Windows has already noted. RestoreHealth repairs the store SFC copies from, using Windows Update: run it when SFC can't fix files." />
+                  </StackPanel>
+                  <WrapPanel ItemSpacing="8" LineSpacing="8">
+                    <Button x:Name="DismCheckButton" />
+                    <Button x:Name="DismRestoreButton" />
+                  </WrapPanel>
+                  <ProgressBar x:Name="DismProgress" Minimum="0" Maximum="100" IsVisible="False" />
+                  <TextBlock x:Name="DismStatus" Classes="muted" FontSize="12" TextWrapping="Wrap" Text="Not run yet." />
+                  <Border x:Name="DismVerdict" Classes="pill" IsVisible="False" HorizontalAlignment="Left">
+                    <TextBlock x:Name="DismVerdictText" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Classes="card" Padding="16">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                  <StackPanel Spacing="1" VerticalAlignment="Center">
+                    <TextBlock Text="OUTPUT" Classes="label" />
+                    <TextBlock x:Name="OutputCaption" Text="What the tool prints shows up here as it runs" Classes="muted" FontSize="11" />
+                  </StackPanel>
+                  <Button x:Name="ViewCbsButton" Grid.Column="1" Content="View CBS log entries" IsVisible="False" />
+                  <Button x:Name="CopyOutputButton" Grid.Column="2" Content="Copy output" />
+                </Grid>
+                <TextBox x:Name="OutputBox" Classes="mono" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                         Height="200" VerticalContentAlignment="Top" />
+              </StackPanel>
+            </Border>
+
+            <Border Classes="card" Padding="16">
+              <StackPanel Spacing="10">
+                <StackPanel Spacing="1">
+                  <TextBlock Text="WINDOWS TOOLS" Classes="label" />
+                  <TextBlock Text="Open Windows' own tools for a closer look" Classes="muted" FontSize="11" />
+                </StackPanel>
+                <WrapPanel x:Name="ToolButtons" ItemSpacing="8" LineSpacing="8" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="CBS log">
+        <Grid RowDefinitions="Auto,Auto,*" Margin="0,0,12,6">
+          <Border Classes="card" Padding="16" Margin="0,0,0,12">
+            <StackPanel Spacing="10">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <StackPanel Spacing="1" VerticalAlignment="Center">
+                  <TextBlock Text="CBS LOG" Classes="label" />
+                  <TextBlock x:Name="CbsPath" Classes="muted" FontSize="11" TextTrimming="CharacterEllipsis"
+                             Text="SFC and DISM write their findings to CBS.log. Find it, or open a copy." />
+                </StackPanel>
+                <CheckBox x:Name="SfcOnlyBox" Grid.Column="1" Content="SFC lines only ([SR])" VerticalAlignment="Center" />
+              </Grid>
+              <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="8">
+                <Button x:Name="FindCbsButton" Classes="primary" Content="Find CBS.log" />
+                <Button x:Name="OpenCbsButton" Grid.Column="1" Content="Open log…" />
+                <Button x:Name="CopyCbsButton" Grid.Column="3" Content="Copy" IsEnabled="False" />
+                <Button x:Name="SaveCbsButton" Grid.Column="4" Content="Save results…" IsEnabled="False" />
+              </Grid>
+            </StackPanel>
+          </Border>
+          <WrapPanel x:Name="CbsCounts" Grid.Row="1" ItemSpacing="8" LineSpacing="8" Margin="0,0,0,10" />
+          <Grid Grid.Row="2">
+            <ListBox x:Name="CbsList" Classes="log" />
+            <TextBlock x:Name="CbsEmpty" Classes="muted" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                       TextWrapping="Wrap" MaxWidth="460"
+                       Text="Lines mentioning errors, corruption and repairs will be listed here, with those words coloured." />
+          </Grid>
+        </Grid>
+      </TabItem>
+    </TabControl>
+  </Grid>
+</Window>
