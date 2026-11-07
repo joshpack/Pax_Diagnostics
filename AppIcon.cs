@@ -15,28 +15,10 @@ public static class AppIcon
     /// <summary>The heartbeat line across the screen, stroked.</summary>
     public static readonly Geometry Pulse = Geometry.Parse("M18,46 L34,46 L41,32 L50,60 L58,26 L65,46 L82,46");
 
+    /// <summary>The full icon (see <see cref="BrandIcon"/>).</summary>
     private static Control Build(int size)
     {
-        var dark = new SolidColorBrush(Color.Parse("#04140C"));
-        var tile = new Grid { Width = size, Height = size };
-        tile.Children.Add(new Border
-        {
-            CornerRadius = new CornerRadius(size * 0.22),
-            Background = new LinearGradientBrush
-            {
-                StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
-                EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
-                GradientStops = { new GradientStop(Color.Parse("#00C8FF"), 0), new GradientStop(Color.Parse("#19F58C"), 1) },
-            },
-        });
-
-        // Thin strokes vanish at 16 px; small icons get bolder lines.
-        var weight = size <= 24 ? 12 : size <= 48 ? 9.5 : 8;
-        var art = new Grid { Width = 100, Height = 100 };
-        art.Children.Add(new ShapePath { Data = Monitor, Stroke = dark, StrokeThickness = weight, StrokeLineCap = PenLineCap.Round, StrokeJoin = PenLineJoin.Round });
-        art.Children.Add(new ShapePath { Data = Pulse, Stroke = dark, StrokeThickness = weight, StrokeLineCap = PenLineCap.Round, StrokeJoin = PenLineJoin.Round });
-        tile.Children.Add(new Viewbox { Margin = new Thickness(size * 0.13), Child = art });
-        return tile;
+        return BrandIcon.Build(size);
     }
 
     private static RenderTargetBitmap Render(int size)
