@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace PaxDiagnostics.Diagnostics;
+namespace pxdDiagnostics.Diagnostics;
 
 /// <summary>The lines of a CBS.log that mention errors, corruption or repairs, and how often each word came up.</summary>
 public sealed record CbsResult(string Path, long LinesRead, IReadOnlyList<string> Matches, int[] Counts, bool SfcOnly)
@@ -118,7 +118,7 @@ public static class CbsLog
     public static async Task SaveAsync(CbsResult r, Stream destination)
     {
         await using var w = new StreamWriter(destination, new UTF8Encoding(false));
-        await w.WriteLineAsync($"PAX Diagnostics - CBS log entries ({DateTime.Now:yyyy-MM-dd HH:mm})");
+        await w.WriteLineAsync($"pxd Diagnostics - CBS log entries ({DateTime.Now:yyyy-MM-dd HH:mm})");
         await w.WriteLineAsync($"Log: {r.Path}");
         await w.WriteLineAsync($"Lines read: {r.LinesRead:N0}, matching: {r.Matches.Count:N0}{(r.SfcOnly ? " (SFC [SR] lines only)" : "")}");
         await w.WriteLineAsync(string.Join(", ", Keywords.Select((k, i) => $"{k}: {r.Counts[i]:N0}")));

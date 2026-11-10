@@ -4,10 +4,10 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using ShapePath = Avalonia.Controls.Shapes.Path;
 
-namespace PaxDiagnostics;
+namespace pxdDiagnostics;
 
 /// <summary>
-/// PAX Diagnostics' icon: a monitor with a green heartbeat on an amber tile.
+/// pxd Diagnostics' icon: a monitor with a green heartbeat on an amber tile.
 /// Drawn from vector shapes so it stays crisp at every size; used for the tray, windows and the exe's .ico.
 /// </summary>
 public static class BrandIcon

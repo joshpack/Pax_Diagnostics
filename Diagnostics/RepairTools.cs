@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PaxDiagnostics.Diagnostics;
+namespace pxdDiagnostics.Diagnostics;
 
 /// <summary>Which repair tool, its command line, and what it is called on screen.</summary>
 public sealed record RepairTool(string Id, string Exe, string Arguments, string Title)

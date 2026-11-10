@@ -6,16 +6,16 @@ using Avalonia.Headless;
 using Avalonia.LogicalTree;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
-using PaxDiagnostics.Diagnostics;
-using PaxDiagnostics.Platform;
-using PaxDiagnostics.Views;
+using pxdDiagnostics.Diagnostics;
+using pxdDiagnostics.Platform;
+using pxdDiagnostics.Views;
 
-namespace PaxDiagnostics;
+namespace pxdDiagnostics;
 
 /// <summary>
 /// --self-test DIR [--sample]: reads the system information, checks the CBS log filter on a made-up log written into
 /// DIR (the real CBS.log is only read), checks output decoding and verdicts with recorded SFC/DISM output, checks
-/// elevation detection, renders every tab (with the PAX title bar) to a PNG on the headless platform, and checks
+/// elevation detection, renders every tab (with the pxd title bar) to a PNG on the headless platform, and checks
 /// remembered window placement and the single-instance hand-off. Nothing is shown on screen. SFC and DISM are never run. With --sample the window
 /// shows invented data instead of this PC's, for screenshots. Exit code 0 when every check passed.
 /// </summary>
@@ -37,7 +37,7 @@ internal static class SelfTest
     public static async Task RunAsync()
     {
         var version = typeof(SelfTest).Assembly.GetName().Version?.ToString(3);
-        R.AppendLine($"PAX Diagnostics {version} self-test, {(Sample ? "sample data" : "this PC")}, {DateTime.Now:yyyy-MM-dd HH:mm}");
+        R.AppendLine($"pxd Diagnostics {version} self-test, {(Sample ? "sample data" : "this PC")}, {DateTime.Now:yyyy-MM-dd HH:mm}");
         R.AppendLine($"Process: {(Environment.Is64BitProcess ? "64" : "32")}-bit on {(Environment.Is64BitOperatingSystem ? "64" : "32")}-bit Windows");
         R.AppendLine();
         try
@@ -48,6 +48,7 @@ internal static class SelfTest
             Decoding();
             Verdicts();
             ElevationChecks();
+            MigrationChecks();
             await Render(sections, cbs);
         }
         catch (Exception ex)
@@ -59,6 +60,29 @@ internal static class SelfTest
         R.AppendLine(_failed == 0 ? "RESULT: all checks passed" : $"RESULT: {_failed} check(s) FAILED");
         ExitCode = _failed == 0 ? 0 : 1;
         await File.WriteAllTextAsync(Path.Combine(Dir!, "report.txt"), R.ToString());
+    }
+
+    // ---------- Migration from the former name ----------
+
+    /// <summary>The data folder under the former name moves to the new one once; a second run changes nothing.</summary>
+    private static void MigrationChecks()
+    {
+        R.AppendLine("== Migration ==");
+        var root = Path.Combine(Dir!, "migrate");
+        if (Directory.Exists(root))
+            Directory.Delete(root, recursive: true);
+        var oldDir = Path.Combine(root, pxdStandard.pxdMigrate.FormerName(Program.AppId));
+        var newDir = Path.Combine(root, Program.AppId);
+        Directory.CreateDirectory(oldDir);
+        File.WriteAllText(Path.Combine(oldDir, "windows.json"), """{"main":{"X":1}}""");
+
+        var first = Migration.Run(root);
+        Check("Migration: former data folder moved to the new name",
+            first && !Directory.Exists(oldDir) && File.Exists(Path.Combine(newDir, "windows.json")) && File.ReadAllText(Path.Combine(newDir, "windows.json")).Contains("\"X\":1"));
+        File.WriteAllText(Path.Combine(newDir, "windows.json"), """{"main":{"X":2}}""");
+        var second = Migration.Run(root);
+        Check("Migration: second run is a no-op", !second && File.ReadAllText(Path.Combine(newDir, "windows.json")).Contains("\"X\":2"));
+        R.AppendLine();
     }
 
     // ---------- System information ----------
@@ -156,7 +180,7 @@ internal static class SelfTest
         }
 
         var back = await File.ReadAllLinesAsync(saved);
-        Check("Save results writes header and every match", back.Length == 5 + all.Matches.Count && back[0].StartsWith("PAX Diagnostics") && !back.Any(l => l.Contains("xxx")),
+        Check("Save results writes header and every match", back.Length == 5 + all.Matches.Count && back[0].StartsWith("pxd Diagnostics") && !back.Any(l => l.Contains("xxx")),
             $"{back.Length} lines");
         Check("Copy text has every match", CbsLog.ToText(all).Split(Environment.NewLine).Length == all.Matches.Count);
         Check("Real CBS.log is never written to", !string.Equals(Path.GetFullPath(path), CbsLog.DefaultPath, StringComparison.OrdinalIgnoreCase));
@@ -331,8 +355,8 @@ internal static class SelfTest
         return w.WindowDecorations == WindowDecorations.BorderOnly
                && all.OfType<TextBlock>().Any(t => t.Text == title)
                && all.OfType<Image>().Any(i => i.Width == 18)
-               && all.OfType<Button>().Count(b => b.Classes.Contains("pax-caption")) == captionButtons
-               && all.OfType<Button>().Any(b => b.Classes.Contains("pax-close"));
+               && all.OfType<Button>().Count(b => b.Classes.Contains("pxd-caption")) == captionButtons
+               && all.OfType<Button>().Any(b => b.Classes.Contains("pxd-close"));
     }
 
     private static MainWindow OffScreen() => new(null, autoLoad: false, elevated: false)
@@ -345,7 +369,7 @@ internal static class SelfTest
 
     // ---------- Remembered placement ----------
 
-    /// <summary>PaxChrome.RememberPlacement: a moved and resized window is saved and restored; a spot off every screen is ignored.</summary>
+    /// <summary>pxdChrome.RememberPlacement: a moved and resized window is saved and restored; a spot off every screen is ignored.</summary>
     private static async Task Placement()
     {
         R.AppendLine("== Window placement (windows.json in the test data folder) ==");
@@ -354,7 +378,7 @@ internal static class SelfTest
         if (File.Exists(file)) File.Delete(file);
 
         var a = OffScreen();
-        PaxStandard.PaxChrome.RememberPlacement(a, key);
+        pxdStandard.pxdChrome.RememberPlacement(a, key);
         a.Show();
         await Task.Delay(50);
         a.Width = 900;
@@ -368,14 +392,14 @@ internal static class SelfTest
 
         // Size comes back; the position is off every screen, so it is ignored and the window keeps its own spot.
         var b = OffScreen();
-        PaxStandard.PaxChrome.RememberPlacement(b, key);
+        pxdStandard.pxdChrome.RememberPlacement(b, key);
         Check("Placement restored (size), off-screen spot ignored", b.Width == 900 && b.Height == 620 && b.Position == new PixelPoint(-30000, -30000),
             $"{b.Width}x{b.Height} at {b.Position}");
 
         // An on-screen spot and the maximized flag come back too (this window is never shown).
         await File.WriteAllTextAsync(file, """{"selftest":{"X":120,"Y":90,"Width":980,"Height":700,"Maximized":true}}""");
         var c = OffScreen();
-        PaxStandard.PaxChrome.RememberPlacement(c, key);
+        pxdStandard.pxdChrome.RememberPlacement(c, key);
         Check("Placement restored (position, maximized)", c.Position == new PixelPoint(120, 90) && c.WindowState == WindowState.Maximized && c.Width == 980,
             $"{c.Width}x{c.Height} at {c.Position}, {c.WindowState}");
         R.AppendLine();
@@ -385,7 +409,7 @@ internal static class SelfTest
     private static void SingleInstanceCheck()
     {
         R.AppendLine("== Single instance ==");
-        var name = "PaxDiagnostics-selftest-" + Guid.NewGuid().ToString("N")[..8];
+        var name = "pxdDiagnostics-selftest-" + Guid.NewGuid().ToString("N")[..8];
         string[]? got = null;
         using var done = new ManualResetEventSlim();
         using (SingleInstance.Listen(name, args => { got = args; done.Set(); }))

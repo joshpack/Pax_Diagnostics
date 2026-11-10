@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="PaxDiagnostics.Views.MainWindow"
-        Title="PAX Diagnostics"
+        x:Class="pxdDiagnostics.Views.MainWindow"
+        Title="pxd Diagnostics"
         Width="1000" Height="760" MinWidth="820" MinHeight="560"
         WindowStartupLocation="CenterScreen">
 
@@ -24,7 +24,7 @@
         </Viewbox>
       </Border>
       <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" Spacing="0">
-        <TextBlock Text="PAX DIAGNOSTICS" FontSize="18" FontWeight="Bold" LetterSpacing="1.5" Classes="neon" />
+        <TextBlock Text="pxd DIAGNOSTICS" FontSize="18" FontWeight="Bold" LetterSpacing="1.5" Classes="neon" />
         <TextBlock Text="System info and Windows repair in one place" Classes="muted" FontSize="11" />
       </StackPanel>
       <Border x:Name="ElevationPill" Grid.Column="2" CornerRadius="999" Padding="11,5" VerticalAlignment="Center" BorderThickness="1">

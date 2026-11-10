@@ -2,20 +2,20 @@ using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Threading;
 
-namespace PaxDiagnostics;
+namespace pxdDiagnostics;
 
 internal static class Program
 {
-    public const string AppId = "PaxDiagnostics";
+    public const string AppId = "pxdDiagnostics";
 
     /// <summary>"--tool sfc" and friends: set when the app restarted itself as administrator to run that tool.</summary>
     public static string? StartTool { get; private set; }
 
-    /// <summary>%APPDATA%\PaxDiagnostics (window placement), or the folder in PAXDG_DATA (tests keep the real one untouched).</summary>
+    /// <summary>%APPDATA%\pxdDiagnostics (window placement), or the folder in PXDDG_DATA (tests keep the real one untouched).</summary>
     public static string DataFolder =>
-        Environment.GetEnvironmentVariable("PAXDG_DATA") is { Length: > 0 } custom
+        Environment.GetEnvironmentVariable("PXDDG_DATA") is { Length: > 0 } custom
             ? custom
-            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PaxDiagnostics");
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "pxdDiagnostics");
 
     [STAThread]
     public static int Main(string[] args)
@@ -36,9 +36,9 @@ internal static class Program
             SelfTest.Sample = args.Any(a => a.Equals("--sample", StringComparison.OrdinalIgnoreCase));
             Directory.CreateDirectory(SelfTest.Dir);
             // Keep the real window placement out of it unless the caller chose a folder.
-            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PAXDG_DATA")))
-                Environment.SetEnvironmentVariable("PAXDG_DATA", Path.Combine(SelfTest.Dir, "data"));
-            PaxStandard.PaxChrome.Configure(AppId, DataFolder);
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PXDDG_DATA")))
+                Environment.SetEnvironmentVariable("PXDDG_DATA", Path.Combine(SelfTest.Dir, "data"));
+            pxdStandard.pxdChrome.Configure(AppId, DataFolder);
 
             // Headless platform: the windows are real Avalonia windows, but no OS window exists, so nothing can appear on screen.
             AppBuilder.Configure<App>()
@@ -55,6 +55,10 @@ internal static class Program
             return SelfTest.ExitCode;
         }
 
+        // The folder kept under the app's former name moves to the new one before anything reads it.
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PXDDG_DATA")))
+            Migration.Run(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+
         var tool = Array.FindIndex(args, a => a.Equals("--tool", StringComparison.OrdinalIgnoreCase));
         if (tool >= 0 && tool + 1 < args.Length)
             StartTool = args[tool + 1];
@@ -63,7 +67,7 @@ internal static class Program
         else if (!SingleInstance.Claim(SingleInstance.Name(AppId), args))
             return 0;
 
-        PaxStandard.PaxChrome.Configure(AppId, DataFolder);
+        pxdStandard.pxdChrome.Configure(AppId, DataFolder);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         return 0;
     }

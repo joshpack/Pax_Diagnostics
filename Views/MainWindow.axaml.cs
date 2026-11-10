@@ -9,12 +9,12 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using PaxDiagnostics.Diagnostics;
-using PaxDiagnostics.Platform;
+using pxdDiagnostics.Diagnostics;
+using pxdDiagnostics.Platform;
 using Ellipse = Avalonia.Controls.Shapes.Ellipse;
 using ShapePath = Avalonia.Controls.Shapes.Path;
 
-namespace PaxDiagnostics.Views;
+namespace pxdDiagnostics.Views;
 
 /// <summary>The whole app: system information, SFC and DISM, the CBS log filter and shortcuts to Windows' own tools.</summary>
 public partial class MainWindow : Window
@@ -53,11 +53,11 @@ public partial class MainWindow : Window
         Icon = AppIcon.Create();
         Ctl<ShapePath>("MonitorArt").Data = AppIcon.Monitor;
         Ctl<ShapePath>("PulseArt").Data = AppIcon.Pulse;
-        Title = _elevated ? "PAX Diagnostics (Administrator)" : "PAX Diagnostics";
-        // The PAX title bar replaces the system one (detach the XAML body first so it can be re-parented).
+        Title = _elevated ? "pxd Diagnostics (Administrator)" : "pxd Diagnostics";
+        // The pxd title bar replaces the system one (detach the XAML body first so it can be re-parented).
         var body = (Control)Content!;
         Content = null;
-        Content = PaxStandard.PaxChrome.Wrap(this, body, Title, BrandIcon.Render(36));
+        Content = pxdStandard.pxdChrome.Wrap(this, body, Title, BrandIcon.Render(36));
 
         var pill = Ctl<Border>("ElevationPill");
         pill.Background = new SolidColorBrush(Color.Parse(_elevated ? "#0C2A1D" : "#0C2230"));
@@ -259,7 +259,7 @@ public partial class MainWindow : Window
         {
             var pill = new Border { Classes = { "pill", "warn" }, Padding = new Thickness(7, 1), Child = new TextBlock { Text = "Needs admin" } };
             content.Children.Add(pill);
-            ToolTip.SetTip(b, $"{tool.Title} needs administrator rights. Click to restart PAX Diagnostics as administrator and start it.");
+            ToolTip.SetTip(b, $"{tool.Title} needs administrator rights. Click to restart pxd Diagnostics as administrator and start it.");
         }
 
         b.Content = content;

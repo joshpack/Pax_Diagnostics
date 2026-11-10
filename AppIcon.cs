@@ -4,7 +4,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using ShapePath = Avalonia.Controls.Shapes.Path;
 
-namespace PaxDiagnostics;
+namespace pxdDiagnostics;
 
 /// <summary>The app's mark (a monitor with a pulse line across it), drawn from vector geometry so it stays crisp at every size.</summary>
 public static class AppIcon

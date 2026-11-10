@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32;
 
-namespace PaxDiagnostics.Diagnostics;
+namespace pxdDiagnostics.Diagnostics;
 
 public sealed record InfoRow(string Label, string Value);
 
@@ -433,7 +433,7 @@ public static class SystemInfo
     public static string ToText(IEnumerable<InfoSection> sections)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"PAX Diagnostics - system information ({DateTime.Now:yyyy-MM-dd HH:mm})");
+        sb.AppendLine($"pxd Diagnostics - system information ({DateTime.Now:yyyy-MM-dd HH:mm})");
         foreach (var s in sections)
         {
             sb.AppendLine().AppendLine(s.Title.ToUpperInvariant());

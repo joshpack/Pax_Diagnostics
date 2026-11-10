@@ -1,9 +1,9 @@
-# PAX Diagnostics
+# pxd Diagnostics
 
 **Windows diagnostics in one window.** See what's in a PC at a glance (Windows version, processor, memory, graphics, disks, network and motherboard), run **SFC** and **DISM** with live progress, and pull the errors and repairs out of the CBS log without scrolling through a hundred thousand lines.
 
 <p align="center">
-  <img src="docs/screenshots/system.png" width="720" alt="PAX Diagnostics System tab under the dark PAX title bar: cards for Windows, processor, memory, graphics, storage and network on a made-up workstation, with Refresh and Copy all info buttons">
+  <img src="docs/screenshots/system.png" width="720" alt="pxd Diagnostics System tab under the dark pxd title bar: cards for Windows, processor, memory, graphics, storage and network on a made-up workstation, with Refresh and Copy all info buttons">
 </p>
 
 ## Features
@@ -14,10 +14,10 @@
 - **DISM CheckHealth and RestoreHealth** next to SFC, with the same live progress and verdict. RestoreHealth is the usual next step when SFC can't fix files.
 - **CBS log filter.** *Find CBS.log* opens Windows' servicing log straight away (no need to know where it lives), or *Open log…* a copy from another PC. Only lines mentioning **error**, **corrupt**, **restored** or **repaired** are listed, with those words coloured and counted. *SFC lines only* narrows it to SFC's own `[SR]` entries. **Copy** or **Save results…** to a text file. The log is read while Windows still has it open, and after an SFC or RestoreHealth run it's read for you.
 - **Shortcuts to Windows' own tools:** Reliability Monitor, Event Viewer, Device Manager and System Information.
-- **Opens as a normal user.** Only SFC and DISM need administrator rights. Their buttons say **Needs admin**; click one and PAX Diagnostics asks Windows for permission, reopens as administrator and starts that tool straight away. Say No to the prompt and nothing happens apart from a note explaining why.
+- **Opens as a normal user.** Only SFC and DISM need administrator rights. Their buttons say **Needs admin**; click one and pxd Diagnostics asks Windows for permission, reopens as administrator and starts that tool straight away. Say No to the prompt and nothing happens apart from a note explaining why.
 - **Never freezes.** Reading the hardware, running the tools and filtering the log all happen in the background.
 - **Remembers the window** (size, position, maximized), and starting it again brings the open window to the front instead of a second copy.
-- **Works with [PAX Toolkit](https://github.com/joshpack/PaxToolkit):** same dark title bar as the other PAX apps, installed and kept up to date from there.
+- **Works with [pxd Toolkit](https://github.com/joshpack/pxdToolkit):** same dark title bar as the other pxd apps, installed and kept up to date from there.
 
 | Repair | CBS log |
 | --- | --- |
@@ -34,14 +34,14 @@
 
 ## Install (Windows)
 
-**From PAX Toolkit:** turn on PAX Diagnostics in **[PAX Toolkit](https://github.com/joshpack/PaxToolkit)** and it's downloaded and kept up to date for you.
+**From pxd Toolkit:** turn on pxd Diagnostics in **[pxd Toolkit](https://github.com/joshpack/pxdToolkit)** and it's downloaded and kept up to date for you.
 
 **By hand:**
 
 1. Install the **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)** (x64) if you don't have it. The plain ".NET Runtime" is enough; the ".NET Desktop Runtime" includes it, so that works too.
-2. Download **`PaxDiagnostics-1.1.0-win-x64.zip`** from **[the latest release](https://github.com/joshpack/Pax_Diagnostics/releases/latest)**.
-3. Unzip it somewhere permanent, for example `%USERPROFILE%\Apps\PaxDiagnostics`.
-4. Run `PaxDiagnostics.exe`. It opens without administrator rights.
+2. Download **`pxdDiagnostics-1.2.0-win-x64.zip`** from **[the latest release](https://github.com/joshpack/pxdDiagnostics/releases/latest)**.
+3. Unzip it somewhere permanent, for example `%USERPROFILE%\Apps\pxdDiagnostics`.
+4. Run `pxdDiagnostics.exe`. It opens without administrator rights.
 
 The exe isn't code-signed, so SmartScreen may warn the first time: choose **More info → Run anyway**.
 
@@ -73,34 +73,35 @@ The exe isn't code-signed, so SmartScreen may warn the first time: choose **More
 ## Self-test
 
 ```bat
-PaxDiagnostics.exe --self-test C:\Temp\pax-test
+pxdDiagnostics.exe --self-test C:\Temp\pxd-test
 ```
 
-Writes `report.txt` into that folder: what each system information section returned (and which came back empty), a check of the CBS log filter on a made-up `CBS.log` it writes into the folder (also while that file is held open, and while it's locked), a read-only pass over the real CBS log, decoding of recorded SFC and DISM output, the verdicts, and the elevation check, that the window's size, position and maximized state are saved and restored (a spot no longer on any screen is ignored), and that a second start hands over to the first. **SFC and DISM are never run.** It also saves `system.png`, `repair.png` and `cbs-log.png`, pictures of each tab with the title bar, drawn by Avalonia's headless renderer, so nothing appears on your screen. Window placement goes to a `data` folder inside the test folder unless `PAXDG_DATA` is set. The exit code is 0 when every check passed. Without `--sample` the report and pictures contain your real hardware details.
+Writes `report.txt` into that folder: what each system information section returned (and which came back empty), a check of the CBS log filter on a made-up `CBS.log` it writes into the folder (also while that file is held open, and while it's locked), a read-only pass over the real CBS log, decoding of recorded SFC and DISM output, the verdicts, and the elevation check, that the window's size, position and maximized state are saved and restored (a spot no longer on any screen is ignored), and that a second start hands over to the first. **SFC and DISM are never run.** It also saves `system.png`, `repair.png` and `cbs-log.png`, pictures of each tab with the title bar, drawn by Avalonia's headless renderer, so nothing appears on your screen. Window placement goes to a `data` folder inside the test folder unless `PXDDG_DATA` is set. The exit code is 0 when every check passed. Without `--sample` the report and pictures contain your real hardware details.
 
 ## Window placement
 
-The window's size, position and maximized state are saved in `%APPDATA%\PaxDiagnostics\windows.json`. Delete it to go back to the default. The environment variable `PAXDG_DATA` points the app at another folder instead.
+The window's size, position and maximized state are saved in `%APPDATA%\pxdDiagnostics\windows.json`. Delete it to go back to the default. The folder left by the app under its former name is moved here the first time it starts. The environment variable `PXDDG_DATA` points the app at another folder instead.
 
 ## Build from source
 
 Windows with the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0):
 
 ```bash
-git clone https://github.com/joshpack/Pax_Diagnostics.git
-cd Pax_Diagnostics
+git clone https://github.com/joshpack/pxdDiagnostics.git
+cd pxdDiagnostics
 dotnet run
 dotnet publish -c Release -r win-x64 --self-contained false -p:DebugType=none -o publish/win-x64
 ```
 
-The version comes from `<Version>` in `PaxDiagnostics.csproj`. For a copy that doesn't need the .NET Runtime installed, use `--self-contained true` (a bigger download). After changing the icon drawing, run `PaxDiagnostics.exe --write-icon Assets\PaxDiagnostics.ico` and `--write-icon docs\icon.png`, then build again so the exe picks it up.
+The version comes from `<Version>` in `pxdDiagnostics.csproj`. For a copy that doesn't need the .NET Runtime installed, use `--self-contained true` (a bigger download). After changing the icon drawing, run `pxdDiagnostics.exe --write-icon Assets\pxdDiagnostics.ico` and `--write-icon docs\icon.png`, then build again so the exe picks it up.
 
 ## Code layout
 
 | Path | What's there |
 | --- | --- |
 | `Program.cs` | Start-up and the command-line options |
-| `PaxStandard.cs` | The PAX title bar and remembered window placement, shared by the PAX apps |
+| `pxdStandard.cs` | The pxd title bar and remembered window placement, shared by the pxd apps |
+| `Migration.cs` | Moves the folder kept under the app's former name (first start after the rename) |
 | `SingleInstance.cs` | Hands a second start over to the running copy |
 | `App.axaml(.cs)` | Theme and opening the window |
 | `Views/MainWindow.axaml(.cs)` | The window: System, Repair and CBS log tabs |

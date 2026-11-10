@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Principal;
 
-namespace PaxDiagnostics.Platform;
+namespace pxdDiagnostics.Platform;
 
 /// <summary>
 /// The app opens as a normal user. SFC and DISM need administrator rights, so clicking one of them restarts the app
@@ -31,7 +31,7 @@ public static class Elevation
     /// <summary>How the elevated copy is started (also checked by the self-test, which never starts it).</summary>
     public static ProcessStartInfo RestartInfo(string tool) => new()
     {
-        FileName = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "PaxDiagnostics.exe"),
+        FileName = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "pxdDiagnostics.exe"),
         Arguments = $"--tool {tool}",
         UseShellExecute = true,
         Verb = "runas",

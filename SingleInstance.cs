@@ -2,7 +2,7 @@ using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace PaxDiagnostics;
+namespace pxdDiagnostics;
 
 /// <summary>
 /// One copy per user: starting the exe again hands its arguments to the running copy (which brings its window to the
