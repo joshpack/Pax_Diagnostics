@@ -45,6 +45,26 @@
 
 The exe isn't code-signed, so SmartScreen may warn the first time: choose **More info → Run anyway**.
 
+## Run it from PowerShell (no install)
+
+The console edition works on any Windows PC with PowerShell, with nothing to download or install:
+
+```powershell
+irm pxdtek.com/diag | iex
+```
+
+It shows the PC at a glance (**S** for every detail), runs **SFC /scannow** (**1**), **DISM CheckHealth** (**2**), **ScanHealth** (**3**) and **RestoreHealth** (**4**) with live progress and the same verdicts as the app, and filters the CBS log (**L**: counts, what the newest SFC run repaired or couldn't fix, the matching lines, **F** for SFC's own lines only, copy or save them). **C** copies all the information for a ticket, **R** saves a text or JSON report, **W** opens Reliability Monitor, Event Viewer, Device Manager or System Information. It runs in Windows PowerShell 5.1 and PowerShell 7 as a normal user. SFC and DISM need an elevated prompt: pick one and say yes, and it reopens as administrator and starts that tool (or press **A**). A tool only runs after you confirm it.
+
+Non-interactive, for remote shells and scripts:
+
+```powershell
+& ([scriptblock]::Create((irm pxdtek.com/diag))) -Report
+& ([scriptblock]::Create((irm pxdtek.com/diag))) -Export C:\Temp\pc.txt      # or .json; add -SfcOnly for SFC's CBS lines
+& ([scriptblock]::Create((irm pxdtek.com/diag))) -Copy                       # system information to the clipboard
+```
+
+`-Tool sfc|dism-check|dism-scan|dism-restore` starts that tool straight away in an elevated prompt (it's what the restart as administrator uses). The script is [`cli/pxdDiagnostics.ps1`](cli/pxdDiagnostics.ps1); pxdtek.com serves its raw GitHub copy. It saves nothing on the PC unless you ask for a report, and then only where you choose; the CBS log is read in place, never copied. Run from the [pxd Toolkit](https://github.com/joshpack/pxdToolkit) console (`$env:PXD_INMEMORY = '1'`) it says so at the start ("In-memory: nothing is saved on this PC.") and keeps that mode in the elevated window. `cli\Test-Diagnostics.ps1` checks all this without running SFC or DISM.
+
 ## Using it
 
 - **System** fills in by itself a second after the window opens. **Refresh** reads everything again; **Copy all info** copies it. A card that couldn't be read says why instead of staying blank.
@@ -111,6 +131,8 @@ The version comes from `<Version>` in `pxdDiagnostics.csproj`. For a copy that d
 | `Platform/Elevation.cs` | Checking for administrator rights and restarting elevated |
 | `AppIcon.cs` | The app icon, drawn in code |
 | `SelfTest.cs` | `--self-test` |
+| `cli/pxdDiagnostics.ps1` | The PowerShell console edition (`irm pxdtek.com/diag \| iex`) |
+| `cli/Test-Diagnostics.ps1` | Checks for the console edition (SFC and DISM are faked, never run) |
 | `docs/screenshots/` | The pictures in this file (made-up data) |
 
 Built with [Avalonia](https://avaloniaui.net/) 12 on .NET 10.
