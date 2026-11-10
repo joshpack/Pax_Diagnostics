@@ -49,6 +49,7 @@ internal static class SelfTest
             Verdicts();
             ElevationChecks();
             MigrationChecks();
+            await UpdateChecks();
             await Render(sections, cbs);
         }
         catch (Exception ex)
@@ -60,6 +61,17 @@ internal static class SelfTest
         R.AppendLine(_failed == 0 ? "RESULT: all checks passed" : $"RESULT: {_failed} check(s) FAILED");
         ExitCode = _failed == 0 ? 0 : 1;
         await File.WriteAllTextAsync(Path.Combine(Dir!, "report.txt"), R.ToString());
+    }
+
+    // ---------- Updating before start ----------
+
+    /// <summary>pxdUpdate: skipped for --self-test and dev builds; a fake release on a local HttpListener updates a temp folder.</summary>
+    private static async Task UpdateChecks()
+    {
+        R.AppendLine("== Update before start (local fake release, temp folders) ==");
+        foreach (var (name, ok, detail) in await SelfTestUpdate.RunAsync(Dir!))
+            Check(name, ok, detail.Length > 0 ? detail : null);
+        R.AppendLine();
     }
 
     // ---------- Migration from the former name ----------

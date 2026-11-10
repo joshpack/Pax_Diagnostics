@@ -39,9 +39,11 @@
 **By hand:**
 
 1. Install the **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)** (x64) if you don't have it. The plain ".NET Runtime" is enough; the ".NET Desktop Runtime" includes it, so that works too.
-2. Download **`pxdDiagnostics-1.2.0-win-x64.zip`** from **[the latest release](https://github.com/joshpack/pxdDiagnostics/releases/latest)**.
+2. Download **`pxdDiagnostics-1.2.1-win-x64.zip`** from **[the latest release](https://github.com/joshpack/pxdDiagnostics/releases/latest)**.
 3. Unzip it somewhere permanent, for example `%USERPROFILE%\Apps\pxdDiagnostics`.
 4. Run `pxdDiagnostics.exe`. It opens without administrator rights.
+
+Each time it starts, it checks for a newer release and installs it into its own folder before opening (a few seconds at most; it just opens when offline). Set `PXD_NO_UPDATE=1` to turn that off.
 
 The exe isn't code-signed, so SmartScreen may warn the first time: choose **More info → Run anyway**.
 
@@ -131,6 +133,7 @@ The version comes from `<Version>` in `pxdDiagnostics.csproj`. For a copy that d
 | `Platform/Elevation.cs` | Checking for administrator rights and restarting elevated |
 | `AppIcon.cs` | The app icon, drawn in code |
 | `SelfTest.cs` | `--self-test` |
+| `SelfTestUpdate.cs` | Self-test of updating before start (a made-up release on a local server, temp folders) |
 | `cli/pxdDiagnostics.ps1` | The PowerShell console edition (`irm pxdtek.com/diag \| iex`) |
 | `cli/Test-Diagnostics.ps1` | Checks for the console edition (SFC and DISM are faked, never run) |
 | `docs/screenshots/` | The pictures in this file (made-up data) |

@@ -8,6 +8,13 @@ internal static class Program
 {
     public const string AppId = "pxdDiagnostics";
 
+    /// <summary>Where updates come from: this app's GitHub releases and its Windows zip (the same asset the pxd Toolkit installs).</summary>
+    public const string UpdateRepo = "joshpack/pxdDiagnostics";
+    public const string UpdateAsset = @"^pxdDiagnostics-.*-win-x64\.zip$";
+
+    /// <summary>Runs that never update first: the build step, and the elevated copy started for SFC or DISM.</summary>
+    public static readonly string[] NoUpdateArgs = ["--write-icon", "--tool"];
+
     /// <summary>"--tool sfc" and friends: set when the app restarted itself as administrator to run that tool.</summary>
     public static string? StartTool { get; private set; }
 
@@ -20,6 +27,12 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // pxd standard rule 6: an installed copy updates itself before it opens, however it was started. A no-op for dev
+        // builds (bin\), --self-test, PXD_NO_UPDATE=1, offline or a slow GitHub; when it updated, the new copy is already starting.
+        if (!args.Any(a => NoUpdateArgs.Contains(a, StringComparer.OrdinalIgnoreCase))
+            && pxdStandard.pxdUpdate.BeforeStart(UpdateRepo, UpdateAsset, args))
+            return 0;
+
         // Build step: "--write-icon <file.ico|file.png>" renders the app mark and exits, no window.
         var icon = Array.FindIndex(args, a => a.Equals("--write-icon", StringComparison.OrdinalIgnoreCase));
         if (icon >= 0 && icon + 1 < args.Length)
