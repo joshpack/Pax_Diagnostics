@@ -17,7 +17,7 @@
 - **Opens as a normal user.** Only SFC and DISM need administrator rights. Their buttons say **Needs admin**; click one and pxd Diagnostics asks Windows for permission, reopens as administrator and starts that tool straight away. Say No to the prompt and nothing happens apart from a note explaining why.
 - **Never freezes.** Reading the hardware, running the tools and filtering the log all happen in the background.
 - **Remembers the window** (size, position, maximized), and starting it again brings the open window to the front instead of a second copy.
-- **Works with [pxd Toolkit](https://github.com/joshpack/pxdToolkit):** same dark title bar as the other pxd apps, installed and kept up to date from there.
+- **Works with [pxd Toolkit](https://github.com/pxdtek/pxdToolkit):** same dark title bar as the other pxd apps, installed and kept up to date from there.
 
 | Repair | CBS log |
 | --- | --- |
@@ -34,16 +34,16 @@
 
 ## Install (Windows)
 
-**From pxd Toolkit:** turn on pxd Diagnostics in **[pxd Toolkit](https://github.com/joshpack/pxdToolkit)** and it's downloaded and kept up to date for you.
+**From pxd Toolkit:** turn on pxd Diagnostics in **[pxd Toolkit](https://github.com/pxdtek/pxdToolkit)** and it's downloaded and kept up to date for you.
 
 **By hand:**
 
 1. Install the **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)** (x64) if you don't have it. The plain ".NET Runtime" is enough; the ".NET Desktop Runtime" includes it, so that works too.
-2. Download **`pxdDiagnostics-1.2.1-win-x64.zip`** from **[the latest release](https://github.com/joshpack/pxdDiagnostics/releases/latest)**.
+2. Download **`pxdDiagnostics-1.2.2-win-x64.zip`** from **[the latest release](https://github.com/pxdtek/pxdDiagnostics/releases/latest)**.
 3. Unzip it somewhere permanent, for example `%USERPROFILE%\Apps\pxdDiagnostics`.
 4. Run `pxdDiagnostics.exe`. It opens without administrator rights.
 
-Each time it starts, it checks for a newer release and installs it into its own folder before opening (a few seconds at most; it just opens when offline). Set `PXD_NO_UPDATE=1` to turn that off.
+Each time it starts, it checks for a newer release (at pxdtek.com, or GitHub when pxdtek.com can't be reached) and installs it into its own folder before opening (a few seconds at most; it just opens when offline). Set `PXD_NO_UPDATE=1` to turn that off.
 
 The exe isn't code-signed, so SmartScreen may warn the first time: choose **More info → Run anyway**.
 
@@ -65,7 +65,7 @@ Non-interactive, for remote shells and scripts:
 & ([scriptblock]::Create((irm pxdtek.com/diag))) -Copy                       # system information to the clipboard
 ```
 
-`-Tool sfc|dism-check|dism-scan|dism-restore` starts that tool straight away in an elevated prompt (it's what the restart as administrator uses). The script is [`cli/pxdDiagnostics.ps1`](cli/pxdDiagnostics.ps1); pxdtek.com serves its raw GitHub copy. It saves nothing on the PC unless you ask for a report, and then only where you choose; the CBS log is read in place, never copied. Run from the [pxd Toolkit](https://github.com/joshpack/pxdToolkit) console (`$env:PXD_INMEMORY = '1'`) it says so at the start ("In-memory: nothing is saved on this PC.") and keeps that mode in the elevated window. `cli\Test-Diagnostics.ps1` checks all this without running SFC or DISM.
+`-Tool sfc|dism-check|dism-scan|dism-restore` starts that tool straight away in an elevated prompt (it's what the restart as administrator uses). The script is [`cli/pxdDiagnostics.ps1`](cli/pxdDiagnostics.ps1); pxdtek.com serves its raw GitHub copy. It saves nothing on the PC unless you ask for a report, and then only where you choose; the CBS log is read in place, never copied. Run from the [pxd Toolkit](https://github.com/pxdtek/pxdToolkit) console (`$env:PXD_INMEMORY = '1'`) it says so at the start ("In-memory: nothing is saved on this PC.") and keeps that mode in the elevated window. `cli\Test-Diagnostics.ps1` checks all this without running SFC or DISM.
 
 ## Using it
 
@@ -109,7 +109,7 @@ The window's size, position and maximized state are saved in `%APPDATA%\pxdDiagn
 Windows with the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0):
 
 ```bash
-git clone https://github.com/joshpack/pxdDiagnostics.git
+git clone https://github.com/pxdtek/pxdDiagnostics.git
 cd pxdDiagnostics
 dotnet run
 dotnet publish -c Release -r win-x64 --self-contained false -p:DebugType=none -o publish/win-x64

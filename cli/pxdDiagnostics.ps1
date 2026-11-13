@@ -10,7 +10,7 @@
         irm pxdtek.com/diag | iex
 
     (pxdtek.com serves the latest copy of
-        https://raw.githubusercontent.com/joshpack/pxdDiagnostics/master/cli/pxdDiagnostics.ps1)
+        https://raw.githubusercontent.com/pxdtek/pxdDiagnostics/master/cli/pxdDiagnostics.ps1)
 
     It shows what's in the PC at a glance (Windows, processor, memory, graphics, disks, network,
     motherboard and BIOS), runs SFC /scannow and DISM (CheckHealth, ScanHealth, RestoreHealth) with
